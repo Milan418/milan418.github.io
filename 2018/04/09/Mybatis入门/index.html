@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yoursite.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="之前工作用Hibernate，现在貌似都是更偏爱Mybatis，Mybatis入门简单能立马上手。本文就简单介绍一下Mybatis,以及和Hibernate的区别；最后在用spring boot+mybatis搭建一个demo。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mybatis入门">
+<meta property="og:url" content="http://yoursite.com/2018/04/09/Mybatis%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Milan">
+<meta property="og:description" content="之前工作用Hibernate，现在貌似都是更偏爱Mybatis，Mybatis入门简单能立马上手。本文就简单介绍一下Mybatis,以及和Hibernate的区别；最后在用spring boot+mybatis搭建一个demo。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-04-09T09:02:00.000Z">
+<meta property="article:modified_time" content="2018-04-09T13:23:46.321Z">
+<meta property="article:author" content="Milan">
+<meta property="article:tag" content="mybatis">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://yoursite.com/2018/04/09/Mybatis%E5%85%A5%E9%97%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://yoursite.com/2018/04/09/Mybatis%E5%85%A5%E9%97%A8/","path":"2018/04/09/Mybatis入门/","title":"Mybatis入门"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Mybatis入门 | Milan</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Milan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">莫生气，生气长结节</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#mybatis%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">mybatis简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hibernate-mybatis"><span class="nav-number">2.</span> <span class="nav-text">Hibernate &amp; mybatis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mybatis%E7%AE%80%E5%8D%95demo"><span class="nav-number">3.</span> <span class="nav-text">mybatis简单demo</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Milan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/09/Mybatis%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Milan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Milan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Mybatis入门 | Milan">
+      <meta itemprop="description" content="之前工作用Hibernate，现在貌似都是更偏爱Mybatis，Mybatis入门简单能立马上手。本文就简单介绍一下Mybatis,以及和Hibernate的区别；最后在用spring boot+mybatis搭建一个demo。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mybatis入门
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2018-04-09 17:02:00 / 修改时间：21:23:46" itemprop="dateCreated datePublished" datetime="2018-04-09T17:02:00+08:00">2018-04-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/mybatis/" itemprop="url" rel="index"><span itemprop="name">mybatis</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">之前工作用Hibernate，现在貌似都是更偏爱Mybatis，Mybatis入门简单能立马上手。本文就简单介绍一下Mybatis,以及和Hibernate的区别；最后在用spring boot+mybatis搭建一个demo。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="mybatis简介"><a href="#mybatis简介" class="headerlink" title="mybatis简介"></a>mybatis简介</h2><p>mybatis官网是<a href="http://www.mybatis.org/mybatis-3/">http://www.mybatis.org/mybatis-3/</a>。官网上Mybatis的Introduction如下：</p>
+<blockquote>
+<p>MyBatis is a first class persistence framework with support for custom SQL, stored procedures and advanced mappings. MyBatis eliminates almost all of the JDBC code and manual setting of parameters and retrieval of results. MyBatis can use simple XML or Annotations for configuration and map primitives, Map interfaces and Java POJOs (Plain Old Java Objects) to database records.</p>
+</blockquote>
+<p>“咬文嚼字”翻译一下</p>
+<blockquote>
+<p>MyBatis是一个支持自定义SQL，存储过程和高级映射的持久性框架。 MyBatis消除了几乎所有的JDBC代码、参数设置和结果集的检索。 MyBatis可以使用简单的XML或注解来配置和映射原语，将Map接口和Java POJO 映射到数据库记录。</p>
+</blockquote>
+<h2 id="Hibernate-mybatis"><a href="#Hibernate-mybatis" class="headerlink" title="Hibernate &amp; mybatis"></a>Hibernate &amp; mybatis</h2><p>Hibernate是建立在若干POJO通过XML映射文件（或注解）提供的规则映射到数据库表上。Hibernate通过配置文件（或注解）就可以把数据库的数据直接映射到POJO上，我们可以通过操作POJP做操作数据库记录。Hibernate对JDBC的封装程度还是比较高的，不需要编写SQL语言，而采用HQL语言。</p>
+<p>Hibernate优势：</p>
+<ul>
+<li>配置了映射文件和数据库连接文件后，Hibernate就可以通过Session操作，非常容易，消除了JDBC带来的大量代码；</li>
+<li>提供了级联、缓存、映射、一对多等功能。</li>
+</ul>
+<p>劣势：</p>
+<ul>
+<li>对多表关联和复杂SQL查询支持较差，需要自己写SQL&amp;对结果进行组装；</li>
+<li>不支持存储过程；</li>
+<li>全表映射有诸多不便，例如更新是需要发送所有字段；</li>
+<li>HQL需要额外学习成本，性能较差，且SQL优化没法做。</li>
+</ul>
+<p>MyBatis是一个半自动映射的框架，它需要手工匹配提供POJO，SQL和映射关系；MyBatis需要自己编写SQL，但是支持配置动态SQL。</p>
+<h2 id="mybatis简单demo"><a href="#mybatis简单demo" class="headerlink" title="mybatis简单demo"></a>mybatis简单demo</h2><p>入门的demo选用spring boot + mybatis（eclipse）。<br>步骤：</p>
+<ol>
+<li>新建maven项目；</li>
+<li>pom中加入spring boot依赖 ，mysql依赖， mybatis依赖；</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.milan<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-demo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.9.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">relativePath</span> /&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- 核心模块，包括自动配置支持、日志和YAML --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- Spring web模块 --&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- 会增加web容器、springweb、springmvc、jackson-databind等相关的依赖 --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- mysql依赖 --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- mybatis依赖 --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- 测试模块，包括JUnit、Hamcrest、Mockito --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">finalName</span>&gt;</span>mybatis-demo<span class="tag">&lt;/<span class="name">finalName</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- 设置jdk版本为1.8 --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在项目resource目录下添加application.properties文件,配置数据库信息 &amp; mybatis</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#数据库配置</span><br><span class="line">spring.datasource.url=jdbc\:mysql\://localhost\:3306/test?useUnicode\=true&amp;characterEncoding\=utf-8&amp;autoReconnect\=true</span><br><span class="line">spring.datasource.username=username</span><br><span class="line">spring.datasource.password=password</span><br><span class="line">spring.datasource.driverClassName=com.mysql.jdbc.Driver</span><br><span class="line"></span><br><span class="line">#mybatis配置</span><br><span class="line">mybatis.type-aliases-package=com.milan.bean</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>表设计略，表对应的bean如下</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.milan.bean;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span>&#123;</span><br><span class="line">	<span class="keyword">private</span> Long id;	</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="comment">//getter/setter略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>mapper类设计，这里采用mybatis注解方式，sql就不放到专门的xml中了。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.milan.mapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Delete;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Insert;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Mapper;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Param;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Result;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.ResultMap;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Results;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Select;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Update;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.milan.bean.User;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 通过Parameter新增</span></span><br><span class="line">    <span class="meta">@Insert(&quot;INSERT INTO t_user(name, age) VALUES(#&#123;name&#125;, #&#123;age&#125;)&quot;)</span></span><br><span class="line">    <span class="type">int</span> <span class="title function_">insertByParameter</span><span class="params">(<span class="meta">@Param(&quot;name&quot;)</span> String name, <span class="meta">@Param(&quot;age&quot;)</span> Integer age)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过Object新增</span></span><br><span class="line">    <span class="meta">@Insert(&quot;INSERT INTO t_user(name, age) VALUES(#&#123;name&#125;, #&#123;age&#125;)&quot;)</span></span><br><span class="line">    <span class="type">int</span> <span class="title function_">insertByObject</span><span class="params">(User user)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Delete By Id</span></span><br><span class="line">    <span class="meta">@Delete(&quot;DELETE FROM t_user WHERE id =#&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">delete</span><span class="params">(Long id)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Update</span></span><br><span class="line">    <span class="meta">@Update(&quot;UPDATE t_user SET age=#&#123;age&#125; WHERE name=#&#123;name&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">update</span><span class="params">(User user)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find by Parameter</span></span><br><span class="line">    <span class="meta">@Select(&quot;SELECT * FROM t_user WHERE name = #&#123;name&#125;&quot;)</span></span><br><span class="line">    List&lt;User&gt; <span class="title function_">findByName</span><span class="params">(<span class="meta">@Param(&quot;name&quot;)</span> String name)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 通过@Results，绑定返回值</span></span><br><span class="line">    <span class="meta">@Results(id=&quot;userMap&quot;,value=&#123;</span></span><br><span class="line"><span class="meta">        @Result(property = &quot;name&quot;, column = &quot;name&quot;),</span></span><br><span class="line"><span class="meta">        @Result(property = &quot;age&quot;, column = &quot;age&quot;)</span></span><br><span class="line"><span class="meta">    &#125;)</span></span><br><span class="line">    <span class="meta">@Select(&quot;SELECT name, age FROM t_user&quot;)</span></span><br><span class="line">    List&lt;User&gt; <span class="title function_">findAll</span><span class="params">()</span>;  </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//公用一个ResultMap</span></span><br><span class="line">    <span class="meta">@Select(&quot;SELECT name, age FROM t_user where id = #&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="meta">@ResultMap(&quot;userMap&quot;)</span></span><br><span class="line">    User <span class="title function_">findUserById</span><span class="params">(<span class="meta">@Param(&quot;id&quot;)</span> Long id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>集成测试不大会，所以我这直接写一个controller，通过链接访问测试，暂略；</li>
+<li>spring boot启动类,直接允许该启动类后进行测试。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.milan;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MybatisDemoApplication</span> &#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">		SpringApplication.run(MybatisDemoApplication.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mybatis/" rel="tag"># mybatis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/04/07/IoC%E5%AE%B9%E5%99%A8%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B-%E4%B8%8B/" rel="prev" title="IoC容器工作过程(下)">
+                  <i class="fa fa-angle-left"></i> IoC容器工作过程(下)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/13/spring-boot%E5%AD%A6%E4%B9%A0-%E5%85%A5%E9%97%A8/" rel="next" title="spring boot学习-入门">
+                  spring boot学习-入门 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Milan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

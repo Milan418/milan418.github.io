@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yoursite.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="AOP即面向切面编程，在学习Spring AOP前，先了解一下AOP的一些基础概念（包括pointcut,advice,apsect等），并简单总结一下Java中常见的AOP实现，最后总结一些AOP的应用场景。ps:这里有一些是我看《Spring揭秘》的一些笔记总结，科普文,高手请绕开。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AOP基础">
+<meta property="og:url" content="http://yoursite.com/2018/03/26/aop%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Milan">
+<meta property="og:description" content="AOP即面向切面编程，在学习Spring AOP前，先了解一下AOP的一些基础概念（包括pointcut,advice,apsect等），并简单总结一下Java中常见的AOP实现，最后总结一些AOP的应用场景。ps:这里有一些是我看《Spring揭秘》的一些笔记总结，科普文,高手请绕开。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-26T15:33:54.000Z">
+<meta property="article:modified_time" content="2018-04-06T06:48:39.897Z">
+<meta property="article:author" content="Milan">
+<meta property="article:tag" content="Spring AOP">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://yoursite.com/2018/03/26/aop%E5%9F%BA%E7%A1%80/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://yoursite.com/2018/03/26/aop%E5%9F%BA%E7%A1%80/","path":"2018/03/26/aop基础/","title":"AOP基础"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AOP基础 | Milan</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Milan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">莫生气，生气长结节</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">AOP基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E7%82%B9-Joinpoint"><span class="nav-number">1.1.</span> <span class="nav-text">连接点(Joinpoint)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%87%E7%82%B9-Pointcut"><span class="nav-number">1.2.</span> <span class="nav-text">切点(Pointcut)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%9A%E7%9F%A5-Advice"><span class="nav-number">1.3.</span> <span class="nav-text">通知(Advice)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E9%9D%A2-Aspect"><span class="nav-number">1.4.</span> <span class="nav-text">方面(Aspect)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%87%E5%85%A5%E5%92%8C%E7%BB%87%E5%85%A5%E5%99%A8"><span class="nav-number">1.5.</span> <span class="nav-text">织入和织入器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%AF%B9%E8%B1%A1-Target"><span class="nav-number">1.6.</span> <span class="nav-text">目标对象(Target)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E4%B8%ADAOP%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">Java中AOP实现机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">动态代理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%AD%97%E8%8A%82%E7%A0%81%E5%A2%9E%E5%BC%BA"><span class="nav-number">2.2.</span> <span class="nav-text">动态字节码增强</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">2.3.</span> <span class="nav-text">java代码生成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">2.4.</span> <span class="nav-text">自定义类加载器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A9%E5%B1%95AOL"><span class="nav-number">2.5.</span> <span class="nav-text">扩展AOL</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">AOP的应用场景</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Milan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/26/aop%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Milan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Milan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AOP基础 | Milan">
+      <meta itemprop="description" content="AOP即面向切面编程，在学习Spring AOP前，先了解一下AOP的一些基础概念（包括pointcut,advice,apsect等），并简单总结一下Java中常见的AOP实现，最后总结一些AOP的应用场景。ps:这里有一些是我看《Spring揭秘》的一些笔记总结，科普文,高手请绕开。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AOP基础
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-03-26 23:33:54" itemprop="dateCreated datePublished" datetime="2018-03-26T23:33:54+08:00">2018-03-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2018-04-06 14:48:39" itemprop="dateModified" datetime="2018-04-06T14:48:39+08:00">2018-04-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">AOP即面向切面编程，在学习Spring AOP前，先了解一下AOP的一些基础概念（包括pointcut,advice,apsect等），并简单总结一下Java中常见的AOP实现，最后总结一些AOP的应用场景。ps:这里有一些是我看《Spring揭秘》的一些笔记总结，科普文,高手请绕开。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="AOP基础概念"><a href="#AOP基础概念" class="headerlink" title="AOP基础概念"></a>AOP基础概念</h3><p>AOP（Aspect Oriented Programming）即面向切面编程。以下介绍AOP中一些概念。</p>
+<h4 id="连接点-Joinpoint"><a href="#连接点-Joinpoint" class="headerlink" title="连接点(Joinpoint)"></a>连接点(Joinpoint)</h4><p>系统运行前，AOP功能需要织入到OOP的功能模块中。要进行织入，就要知道在系统的哪些执行点进行织入操作，这些将要在其上进行织入操作的系统执行点即Joinpoint。</p>
+<p>以下为常见的Joinpoint类型：</p>
+<ul>
+<li>方法调用:在方法被调用时所处的程序执行点</li>
+<li>方法执行:方法内部逻辑执行开始时的程序执行点</li>
+<li>构造方法调用：调用构造方法进行初始化的时点</li>
+<li>构造方法执行:构造方法内部执行的开始时点</li>
+<li>字段设置：对象某个属性通过setter方法被设置或直接被设置的时点</li>
+<li>字段获取：对象某个属性被访问的时点，可以通过getter方法也可以直接方法</li>
+<li>异常处理执行:异常抛出后，对应的异常处理逻辑执行的时点</li>
+<li>类初始化:类中某些今天类型或静态块的初始化时点</li>
+</ul>
+<h4 id="切点-Pointcut"><a href="#切点-Pointcut" class="headerlink" title="切点(Pointcut)"></a>切点(Pointcut)</h4><p>Pointcut指定了系统中符合条件的一组Joinpoint。<br>Pointcut的表达方式有：</p>
+<ul>
+<li>直接指定Jointpoint所在方法名称：只限于Joinpoit较少且较为简单的情况</li>
+<li>正则表达式:大部分Java平台的AOP产品都支持这种形式的Pointcut表达式，<br>e.g.Spring AOP、JBoss AOP</li>
+<li>使用特定的Pointcut表述语言:功能强大，实现复杂。<br>e.g.Spring2.0后支持AspectJ的Pointcut表述语言来来指定Pointcut</li>
+</ul>
+<h4 id="通知-Advice"><a href="#通知-Advice" class="headerlink" title="通知(Advice)"></a>通知(Advice)</h4><p>Advice代表将会织入到Joinpoint的横切逻辑，根据它在Joinpoint位置执行时机的差异或完成功能的不同，可以分成以下形式：</p>
+<ul>
+<li>Before Advice<br>指在Joinpoint指定位置之前执行的Advice类型。通常，它不会中断程序执行流程，且会先于方法执行而执行;若必要也可通过在Before Advice中抛出异常来中断当前程序流程。</li>
+<li>After Advice<br>指在相应Joinpoint之后执行的Advice类型，它还细分为如下三种:<br>a. After returning Advice:在当前Joinpoint处执行流程正常完成后，才执行的Advice；<br>b. After throwing Advice:在当前Joinpoint执行过程中抛出异常后才会执行；<br>c. After Advice:或称为Finally Advice，不管Joinpoint处执行流程正常还是抛出异常都会执行</li>
+<li>Around Advice<br>对Joinpoint进行”包裹”，在Joinpoint之前和之后都指定相应的逻辑，甚至于中断或忽略Joinpoint处原来程序流程的执行。<br>Filter功能就是Around Advice的一种体现，使用Around Advice可以完成“资源初始化”、”安全检查”之类横切系统的关注点。</li>
+</ul>
+<h4 id="方面-Aspect"><a href="#方面-Aspect" class="headerlink" title="方面(Aspect)"></a>方面(Aspect)</h4><p>指对系统中的横切关注点逻辑进行模块化封装的AOP概念实体。可以包含多个Pointcut及相关Advice定义。<br>事务管理就是一个横切关注点</p>
+<h4 id="织入和织入器"><a href="#织入和织入器" class="headerlink" title="织入和织入器"></a>织入和织入器</h4><p>织入是指将AOP集成到OOP，完成横切关注点逻辑到系统的最终织入过程的“工具”即织入器(Weaver)<br>例如：JBoss AOP采用自定义类加载器完成织入操作，该自定义类加载器就是织入器；Spring AOP使用一组类来完成最终的织入操作，ProxyFactory类则是Spring AOP最常用的织入器。</p>
+<h4 id="目标对象-Target"><a href="#目标对象-Target" class="headerlink" title="目标对象(Target)"></a>目标对象(Target)</h4><p>符合Pointcut所指定的条件，将在织入过程中被织入横切逻辑的对象称为目标对象<br>由于Spring AOP是使用运行时代理实现的，因此该对象将始终是代理对象。</p>
+<h3 id="Java中AOP实现机制"><a href="#Java中AOP实现机制" class="headerlink" title="Java中AOP实现机制"></a>Java中AOP实现机制</h3><p>根据织入的时机，分为3种：(1)编译期织入（AspectJ）;(2)类加载时织入（AspectJ 5+）;(3)运行时织入（Spring AOP）。<br>在Java平台上可以使用多种方式实现AOP，下面几种方式是最常用的：</p>
+<h4 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h4><p>JDK1.3后引入了动态代理机制，可以在运行期间，为相应的接口动态生成对应的代理对象。所以将横切关注点逻辑封装到动态代理的InvocationHandler中，在系统运行期间，根据横切关点需要织入的模块位置，将横切逻辑织入到相应的代理类中。</p>
+<p>由于动态代理机制只针对接口有效，所以所有需要织入横切关注点逻辑的模块类都得实现相应的接口。</p>
+<p>Spring AOP默认情况下采用这种机制实现AOP。</p>
+<h4 id="动态字节码增强"><a href="#动态字节码增强" class="headerlink" title="动态字节码增强"></a>动态字节码增强</h4><p>Java虚拟机加载的class文件都是符合一定规范的，所以只要交给JVM运行的文件符合java class 规范，程序就能运行。通常class文件都是从java源代码文件使用javac编译器编译而成的，但只要符合java class规范，也可以使用ASM或CGLIB等java工具库，在程序运行期间，动态构建字节码的class文件。</p>
+<p>在上述前提下，需要织入横切逻辑的模块在运行期间通过动态字节码增强技术为这些系统模块类生成对应的子类，并将横切逻辑加到这些子类中，让应用程序在执行期间使用这些动态生成的子类，到达将横切逻辑织入系统的目的。</p>
+<p>动态字节码增强技术不受限于接口，即使模块类没有实现相应的接口，仍可对其进行扩展，但若要扩展的类及类中的实例方法等声明为 final的话，则无法对其进行子类化的扩展。</p>
+<p>Spring AOP在无法采用动态代理机制进行AOP功能扩展时，会使用CGLIB库的动态字节码增强支持来实现AOP功能扩展。</p>
+<h4 id="java代码生成"><a href="#java代码生成" class="headerlink" title="java代码生成"></a>java代码生成</h4><p>在早期的EJB容器中使用最多，目前已退休。<br>EJB容器提供声明性事务支持，属于一种AOP功能模块实现，早期EJB容器采用Java代码生成技术。EJB容器根据部署描述符文件提供的织入信息，会为相应的功能模块类根据描述符所提供的信息生成对应的Java代码，然后通过部署工具或部署接口编译Java代码生成相应的Java类；之后，部署到EJB容器的功能模块类可以正常工作了。</p>
+<h4 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h4><p>所有的class都要通过相应的类加载器加载到Java虚拟机之后才能运行。默认的类加载器会读取class字节码文件，然后按照class字节码规范，解析并加载这些class文件到虚拟机运行。<br>可以通过自定义类加载器，在class文件加载到虚拟机时，将横切逻辑织入class文件。自定义类加载器通过读取外部文件规定的织入规则和必要信息，在加载class文件期间可以将横切逻辑添加到系统模块类的现有逻辑中，然后将改动后的class交给JVM运行。</p>
+<p>通过类加载器可以对大部分类及相应实例进行织入，功能强大；这种方式最大的问题是类加载器本身的使用。某些应用服务器会控制整个类加载体系，这种场景下使用可能产生一定的问题。<br>JBoss AOP是采用自定义类加载器的方式实现。</p>
+<h4 id="扩展AOL"><a href="#扩展AOL" class="headerlink" title="扩展AOL"></a>扩展AOL</h4><p>AOP也是一种理念，类似于OOP，实现AOP的语言称为AOL，常见的AOL有AspectJ,AspectC++… …<br>通过扩展AOL实现任何AOP</p>
+<h3 id="AOP的应用场景"><a href="#AOP的应用场景" class="headerlink" title="AOP的应用场景"></a>AOP的应用场景</h3><p>AOP常见的应用场景有如下几种：</p>
+<ul>
+<li>权限控制</li>
+<li>缓存控制</li>
+<li>事务控制</li>
+<li>审计日志</li>
+<li>性能监控</li>
+<li>分布式追踪</li>
+<li>异常处理</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Spring-AOP/" rel="tag"># Spring AOP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/03/26/Hexo%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" rel="prev" title="Hexo常用命令">
+                  <i class="fa fa-angle-left"></i> Hexo常用命令
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/03/27/Spring-AOP%E4%BD%BF%E7%94%A8/" rel="next" title="Spring AOP使用">
+                  Spring AOP使用 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Milan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

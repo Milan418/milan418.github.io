@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yoursite.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Spring事务管理在实际应用中常用到，本文先讲了一下事务基础，包括ACID，事务隔离级别；然后简单引申Spring中对事务的抽象描述，最后示例了Spring事务管理的两种方式-编程式事务管理和声明式事务管理。其实我在实际项目中也只用过声明式事务管理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring事务管理">
+<meta property="og:url" content="http://yoursite.com/2018/03/31/Spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="Milan">
+<meta property="og:description" content="Spring事务管理在实际应用中常用到，本文先讲了一下事务基础，包括ACID，事务隔离级别；然后简单引申Spring中对事务的抽象描述，最后示例了Spring事务管理的两种方式-编程式事务管理和声明式事务管理。其实我在实际项目中也只用过声明式事务管理。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/.com//TransactionDefinition.png">
+<meta property="article:published_time" content="2018-03-31T09:46:06.000Z">
+<meta property="article:modified_time" content="2018-04-06T06:54:03.216Z">
+<meta property="article:author" content="Milan">
+<meta property="article:tag" content="Spring AOP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/.com//TransactionDefinition.png">
+
+
+<link rel="canonical" href="http://yoursite.com/2018/03/31/Spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://yoursite.com/2018/03/31/Spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/","path":"2018/03/31/Spring事务管理/","title":"Spring事务管理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Spring事务管理 | Milan</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Milan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">莫生气，生气长结节</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">事务基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%89%B9%E6%80%A7ACID"><span class="nav-number">1.1.</span> <span class="nav-text">事务特性ACID</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E9%97%B4%E5%BD%B1%E5%93%8D"><span class="nav-number">1.2.</span> <span class="nav-text">事务间影响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">1.3.</span> <span class="nav-text">事务隔离级别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">Spring事务原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E4%BA%8B%E5%8A%A1%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">2.1.</span> <span class="nav-text">Spring事务的隔离级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BC%A0%E6%92%AD%E8%A1%8C%E4%B8%BA"><span class="nav-number">2.2.</span> <span class="nav-text">Spring事务的传播行为</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E5%B5%8C%E5%A5%97"><span class="nav-number">2.3.</span> <span class="nav-text">事务嵌套</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">Spring事务管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A8%8B%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">3.1.</span> <span class="nav-text">编程式事务管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="nav-number">3.2.</span> <span class="nav-text">声明式事务管理</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Milan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/31/Spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Milan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Milan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Spring事务管理 | Milan">
+      <meta itemprop="description" content="Spring事务管理在实际应用中常用到，本文先讲了一下事务基础，包括ACID，事务隔离级别；然后简单引申Spring中对事务的抽象描述，最后示例了Spring事务管理的两种方式-编程式事务管理和声明式事务管理。其实我在实际项目中也只用过声明式事务管理。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring事务管理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-03-31 17:46:06" itemprop="dateCreated datePublished" datetime="2018-03-31T17:46:06+08:00">2018-03-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2018-04-06 14:54:03" itemprop="dateModified" datetime="2018-04-06T14:54:03+08:00">2018-04-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">Spring事务管理在实际应用中常用到，本文先讲了一下事务基础，包括ACID，事务隔离级别；然后简单引申Spring中对事务的抽象描述，最后示例了Spring事务管理的两种方式-编程式事务管理和声明式事务管理。其实我在实际项目中也只用过声明式事务管理。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="事务基础"><a href="#事务基础" class="headerlink" title="事务基础"></a>事务基础</h2><p>事务就是一组原子性的SQL查询。事务内的语句，要么全部执行成功，要么全部执行失败。可以用START TRANSACTION语句开始一个事务，然后要么使用COMMIT提交事务将修改的数据持久保留，要么使用ROLLBACK撤销所有的修改。</p>
+<h3 id="事务特性ACID"><a href="#事务特性ACID" class="headerlink" title="事务特性ACID"></a>事务特性ACID</h3><p>ACID，是指在可靠数据库管理系统（DBMS）中，事务(transaction)所应该具有的四个特性。</p>
+<ul>
+<li><p><strong>原子性（Atomicity）</strong><br>事务是一个不可再分割的工作单位，事务中的操作要么都发生，要么都不发生。<br><br>在数据库管理系统（DBMS）中，默认情况下一条SQL就是一个单独事务，事务是自动提交的。只有显式的使用start transaction开启一个事务，才能将一个代码块放在事务中执行。</p>
+ <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">begin</span> transaction</span><br><span class="line"><span class="keyword">update</span> account <span class="keyword">set</span> money <span class="operator">=</span> money <span class="operator">-</span> <span class="number">100</span> <span class="keyword">where</span> name <span class="operator">=</span> <span class="string">&#x27;A&#x27;</span></span><br><span class="line"><span class="keyword">update</span> account <span class="keyword">set</span> money <span class="operator">=</span> money <span class="operator">+</span> <span class="number">100</span> <span class="keyword">where</span> name <span class="operator">=</span> <span class="string">&#x27;B&#x27;</span></span><br><span class="line">if Error <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">rollback</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">commit</span></span><br></pre></td></tr></table></figure></li>
+<li><p><strong>一致性（Consistency）</strong><br>数据库总是从一个一致性的状态转换到另外一个一致性的状态。<br>在事务开始之前和事务结束以后，数据库的完整性约束没有被破坏。即数据库事务不能破坏关系数据的完整性以及业务逻辑上的一致性。<br>例如：对银行转帐事务，不管事务成功还是失败，应该保证事务结束后ACCOUNT表中aaa和bbb的存款总额为2000元。<br>数据库层面的一致性是，在一个事务执行之前和之后，数据会符合你设置的约束（唯一约束，外键约束,Check约束等)和触发器设置。</p>
+</li>
+<li><p><strong>隔离性（Isolation）</strong><br>一个事务所做的修改在最终提交以前，对其它事务是不可见的。也指多个事务并发访问时，事务之间是隔离的，一个事务不应该影响其它事务运行效果</p>
+</li>
+<li><p><strong>持久性（Durability）</strong><br>一旦事务提交，事务所做的修改就永久地保存到数据库中，即使系统崩溃，修改的数据也不会丢失。</p>
+</li>
+</ul>
+<h3 id="事务间影响"><a href="#事务间影响" class="headerlink" title="事务间影响"></a>事务间影响</h3><p>事务并发时，事务之间的相互影响有脏读，不可重复读，幻读，丢失更新这几种。</p>
+<ul>
+<li><p><strong>脏读</strong><br>一个事务读取了另一个事务未提交的数据，而这个数据是有可能回滚的；<br>e.g.</p>
+  <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">事务1：更新一条数据</span><br><span class="line">             -------------&gt;事务2：读取事务1更新的记录</span><br><span class="line">事务1：调用commit进行提交</span><br></pre></td></tr></table></figure></li>
+<li><p><strong>丢失更新</strong><br>两个事务同时读取同一条记录，A先修改记录，B也修改记录（B是不知道A修改过），B提交数据后B的修改结果覆盖了A的修改结果</p>
+</li>
+<li><p><strong>不可重复读</strong><br>一个事务范围内两个相同的查询却返回了不同数据<br>这是由于查询时系统中其他事务修改的提交而引起的。<br>e.g.</p>
+  <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">事务1：查询一条记录</span><br><span class="line">          --------------&gt;事务2：更新事务1查询的记录</span><br><span class="line">           --------------&gt;事务2：调用commit进行提交</span><br><span class="line">事务1：再次查询上次的记录</span><br></pre></td></tr></table></figure></li>
+<li><p><strong>幻读</strong><br>指的是在一个事务1中执行了一个当前读操作，而另外一个事务2在事务1的影响区间内insert了一条记录，这时事务1再执行一个当前读操作时，出现了幻行。<br>它和不可重复读的主要区别就在于事务1中一个是快照读，一个是当前读；并且事务2中一个是任何的dml操作，一个只是insert。<br>e.g.</p>
+  <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">事务1：select * from test where id&lt;10 lock in share mode</span><br><span class="line">                          --------------&gt;事务2：插入一条记录id=4</span><br><span class="line">                          --------------&gt;事务2：调用commit进行提交</span><br><span class="line">事务1：再次执行上述语句，或执行Insert id=4记录</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h3><p>为了避免上述几种事务之间的影响，SQL中定义了4中隔离级别，每种级别都规定了一个事务中所做的修改，哪些是在事务内和事务间是可见的，哪些是不可见的。<br>通过设置不同的隔离级别来进行不同程度的避免事务间的影响。因为高的隔离等级意味着更多的锁，从而牺牲性能。</p>
+<p>| 隔离级别 | 脏读 | 丢失更新 |不可重复读|幻读|<br>|:—–|:—–|:—–|:—–|:—–|:—–|<br>|未提交读|是|是|是|是|<br>|已提交读|否|是|是|是|<br>|可重复读|否|否|否|是|<br>|可串行读|否|否|否|否|</p>
+<h2 id="Spring事务原理"><a href="#Spring事务原理" class="headerlink" title="Spring事务原理"></a>Spring事务原理</h2><p>Spring事务的本质其实就是数据库对事务的支持，没有数据库的事务支持，spring是无法提供事务功能的。<br>原始的JDBC操作数据库时，按照如下步骤来开启事务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.获取数据库连接</span></span><br><span class="line"><span class="type">Connection</span> <span class="variable">con</span> <span class="operator">=</span> DriverManager.getConnection();</span><br><span class="line"><span class="comment">//2.开启事务</span></span><br><span class="line">con.setAutoCommit(<span class="literal">true</span>/<span class="literal">false</span>);</span><br><span class="line"><span class="comment">//3.执行SQL，略</span></span><br><span class="line"><span class="comment">//4.提交或回滚事务</span></span><br><span class="line"> con.commit() <span class="comment">//提交</span></span><br><span class="line"><span class="comment">//con.rollback();//回滚</span></span><br><span class="line"><span class="comment">//5.关闭连接</span></span><br><span class="line">con.close();</span><br></pre></td></tr></table></figure>
+
+<p>Spring接管事务后，由AOP实现步骤2和步骤4。在具体讲如何使用Spring事务管理前，我们先来了解一些Spring事务的基本知识。</p>
+<p>Spring中提供了关于事务管理的接口主要有如下三个：</p>
+<ul>
+<li><strong>PlatformTransactionManager-事务管理器</strong>，真正管理事务，包含事务提交和回滚操作；<br>Spring框架支持事务管理的核心是事务管理器抽象，对于不同的数据访问框架通过实现策略接口PlatformTransactionManager，从而能支持多钟数据访问框架的事务管理。spring提供了很多内置事务管理器，支持不同数据源，常见的有三大类<ul>
+<li><strong>DataSourceTransactionManager</strong>：org.springframework.jdbc.datasource包下，数据源事务管理类，提供对单个javax.sql.DataSource数据源的事务管理，只要用于JDBC，Mybatis框架事务管理。</li>
+<li><strong>HibernateTransactionManager</strong>：org.springframework.orm.hibernate3包下，数据源事务管理类，提供对单个org.hibernate.SessionFactory事务支持，用于集成Hibernate框架时的事务管理；注意：该事务管理器只支持Hibernate3+版本，且Spring3.0+版本只支持Hibernate 3.2+版本。</li>
+<li><strong>JtaTransactionManager</strong>：位于org.springframework.transaction.jta包中，提供对分布式事务管理的支持，并将事务管理委托给Java EE应用服务器，或者自定义一个本地JTA事务管理器，嵌套到应用程序中。</li>
+</ul>
+</li>
+<li><strong>TransactionDefinition-事务定义信息</strong>，包含隔离级别、传播行为、是否超时、是否只读等事务基本属性；</li>
+<li><strong>TransactionStatus-事务具体的运行状态<strong>，如是否为新事务，是否有保存点，是否已完成等。</strong></strong></li>
+</ul>
+<p>这里我们先只详细介绍事务定义TransactionDefinition接口，看一下Spring对数据库事务的抽象，如下为TransactionDefinition接口。<br><img src="/.com//TransactionDefinition.png" alt="TransactionDefinition接口"><br>以下根据TransactionDefinition接口定义说明Spring事务的基本属性。</p>
+<h3 id="Spring事务的隔离级别"><a href="#Spring事务的隔离级别" class="headerlink" title="Spring事务的隔离级别"></a>Spring事务的隔离级别</h3><p>Spring事务的隔离级别常量解释如下表。</p>
+<table>
+<thead>
+<tr>
+<th align="left">常量名称</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">ISOLATION_DEFAUL</td>
+<td align="left"><font color="red">默认级别，表示使用数据库默认的事务隔离级别</font>，另外四个与JDBC隔离级别对应</td>
+</tr>
+<tr>
+<td align="left">ISOLATION_READ_UNCOMMITTED</td>
+<td align="left">读未提交</td>
+</tr>
+<tr>
+<td align="left">ISOLATION_READ_COMMITTED</td>
+<td align="left">读已提交</td>
+</tr>
+<tr>
+<td align="left">ISOLATION_REPEATABLE_READ</td>
+<td align="left">可重复度</td>
+</tr>
+<tr>
+<td align="left">ISOLATION_SERIALIZABLE</td>
+<td align="left">可串行读</td>
+</tr>
+</tbody></table>
+<h3 id="Spring事务的传播行为"><a href="#Spring事务的传播行为" class="headerlink" title="Spring事务的传播行为"></a>Spring事务的传播行为</h3><p>【参考】 <a href="http://mp.weixin.qq.com/s?__biz=MzIzMDk2ODA2NQ==&mid=2247484410&idx=1&sn=72bf3f67544985cdfb0d92c698e5ea3b&chksm=e8aa1d94dfdd9482d8a77acdedab2a8b7093977a5dbfa03b172a2e6aeeb14d052f2c958bfe9b&mpshare=1&scene=1&srcid=0401FLcnRiCt02aIFfjp9E5u#rd">解读底层原理，分析Spring事务管理那些事</a><br>spring事务的传播属性，就是定义在存在多个事务同时存在的时候，spring应该如何处理这些事务的行为。</p>
+<table>
+<thead>
+<tr>
+<th align="left">常量名称</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">PROPAGATION_REQUIRED</td>
+<td align="left"><font color="red">Spring事务默认传播行为</font>。支持当前事务，若当前没有事务则新建一个事务</td>
+</tr>
+<tr>
+<td align="left">PROPAGATION_SUPPORTS</td>
+<td align="left">支持当前事务，若当前没有事务则以非事务方式执行，确切的行为取决于实际的同步事务管理器的配置，需要慎用</td>
+</tr>
+<tr>
+<td align="left">PROPAGATION_MANDATORY</td>
+<td align="left">支持当前事务，若当前没有事务则抛异常</td>
+</tr>
+<tr>
+<td align="left">PROPAGATION_REQUIRES_NEW</td>
+<td align="left">新建事务。若当前存在事务，则将当前事务挂起，新建事务同被挂起事务没有任何关系，是两个独立的事务。</td>
+</tr>
+<tr>
+<td align="left">PROPAGATION_NOT_SUPPORTED</td>
+<td align="left">以非事务方式执行，若当前存在事务则将当前事务挂起，适用于JtaTransactionManager</td>
+</tr>
+<tr>
+<td align="left">PROPAGATION_NEVER</td>
+<td align="left">以非事务方式运行，若当前存在事务则抛异常</td>
+</tr>
+<tr>
+<td align="left">PROPAGATION_NESTED</td>
+<td align="left">若有事务存在，则运行在一个嵌套的事务中；若没有事务，则新建一个单独的事务。该嵌套事务有多个回滚保存点，内部事务的回滚不会对外部事务造成影响，且事务传播行为只在DataSourceTransactionManager中生效</td>
+</tr>
+</tbody></table>
+<h3 id="事务嵌套"><a href="#事务嵌套" class="headerlink" title="事务嵌套"></a>事务嵌套</h3><p>讲到Spring事务的传播行为，就不得不说一下事务嵌套。例如ServceA的methodA()中调用ServiceB的methodB()。</p>
+<ol>
+<li><p>若ServiceB.methodB()的事务传播行为是PROPAGATION_REQUIRED</p>
+<ul>
+<li>若ServiceA.methodA()已开启事务了，则ServiceB.methodB()直接运行在ServiceA.methodA()事务中，不再开启事务；ServicA.methodA()或ServiceB.methodB()异常都会回滚事务。</li>
+<li>若ServiceA.methodA()没有事务，则ServiceB.methodB()独自开启一个事务。</li>
+</ul>
+</li>
+<li><p>ServiceB.methodB() 的传播行为是 PROPAGATION_REQUIRES_NEW<br>不论ServiceA.methodA()有没有事务，ServiceB.methodB()都会新起一个独立的事务；只是若ServcieA.methodA()有事务则该事务会先暂停，ServiceB.methodB()事务完成后才继续执行。<br>若ServiceB.methodB()异常，其事务会回滚；若ServiceB.methodB()的异常往外抛，ServiceA.methodA()捕获该异常，ServiceA.methodA()可以选择针对该异常是继续提交还是回滚自身的事务。</p>
+</li>
+<li><p>ServiceB.methodB() 的事务传播行为是 PROPAGATION_SUPPORTS<br>若ServiceA.methodA()已经开启了一个事务，则加入当前的事务；若ServiceA.methodA()没有开启事务，则自己也不开启事务。</p>
+</li>
+<li><p>ServiceB.methodB() 的事务传播行为是 PROPAGATION_NESTED<br>若ServiceB.methodB() rollback, 那么内部事务(即 ServiceB.methodB()的事务) 将回滚到它执行前的 SavePoint 而外部事务(即 ServiceA.methodA()的事务) 可以捕获ServiceB.methodB()的异常，根据具体情况决定自己是commit还是rollback。</p>
+</li>
+</ol>
+<h2 id="Spring事务管理"><a href="#Spring事务管理" class="headerlink" title="Spring事务管理"></a>Spring事务管理</h2><h3 id="编程式事务管理"><a href="#编程式事务管理" class="headerlink" title="编程式事务管理"></a>编程式事务管理</h3><p>所谓编程式事务指的是通过编码方式实现事务，即类似于JDBC编程实现事务管理。Spring框架提供一致的事务抽象，对于JDBC还是JTA事务都是采用相同的API进行编程；而在底层，Spring 仍然将事务操作委托给底层的持久化框架来执行。</p>
+<p>基于 TransactionDefinition、PlatformTransactionManager、TransactionStatus 编程式事务管理是 Spring 提供的最原始的方式，通常我们不会直接用。</p>
+<p>Spring中提供了<font color="red">事务管理模板-TransactionTemplate</font>，推荐使用PlatformTransactionManager+TransactionTemplate实现事务管理。以DataSourceTransactionManager+TransactionTemplate为例。<br>步骤1：声明DataSourceTransactionManager，它的构造依赖DataSource</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 加载jdbc.property --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;propertyConfigurer&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;locations&quot;</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">list</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">value</span>&gt;</span>classpath:jdbc.properties<span class="tag">&lt;/<span class="name">value</span>&gt;</span> </span><br><span class="line">          <span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 数据源配置, 使用DBCP数据库连接池 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.commons.dbcp.BasicDataSource&quot;</span> <span class="attr">destroy-method</span>=<span class="string">&quot;close&quot;</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 数据库连接信息配置--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;driverClassName&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.driver&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;url&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.url&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;username&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.username&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;password&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$&#123;jdbc.password&#125;&quot;</span>/&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 连接池配置 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;maxActive&quot;</span> <span class="attr">value</span>=<span class="string">&quot;3&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;defaultAutoCommit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;false&quot;</span>/&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 连接Idle一个小时后超时 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;timeBetweenEvictionRunsMillis&quot;</span> <span class="attr">value</span>=<span class="string">&quot;3600000&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;minEvictableIdleTimeMillis&quot;</span> <span class="attr">value</span>=<span class="string">&quot;3600000&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;transactionManager&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span> <span class="attr">scope</span>=<span class="string">&quot;singleton&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;dataSource&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;dataSource&quot;</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>步骤2：声明TransactionTemplate实例</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 声明事务模板 --&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;transactionTemplate&quot;</span></span></span><br><span class="line"><span class="tag">     <span class="attr">class</span>=<span class="string">&quot;org.springframework.transaction.support.TransactionTemplate&quot;</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;transactionManager&quot;</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">ref</span> <span class="attr">bean</span>=<span class="string">&quot;transactionManager&quot;</span> /&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>步骤3：使用TransactionTemplate实现事务管理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//jdbcTemplate,transactionTemplatez注入这里就省略了</span></span><br><span class="line"><span class="meta">@Test</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testTransactionTemplate</span><span class="params">()</span>&#123;  </span><br><span class="line">    <span class="type">String</span> <span class="variable">insert_sql</span> <span class="operator">=</span> <span class="string">&quot;insert into t_test(id) values(?)&quot;</span>;  </span><br><span class="line">    <span class="type">String</span> <span class="variable">count_sql</span> <span class="operator">=</span> <span class="string">&quot;select count(*) from t_test&quot;</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> jdbcTemplate.queryForInt(count_sql);    </span><br><span class="line">    System.out.println(<span class="string">&quot;表中记录总数：&quot;</span>+i);  </span><br><span class="line">    <span class="comment">//事务隔离级别设置</span></span><br><span class="line">    transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);    </span><br><span class="line">    <span class="comment">//重写execute方法实现事务管理  </span></span><br><span class="line">    transactionTemplate.execute(<span class="keyword">new</span> <span class="title class_">TransactionCallbackWithoutResult</span>() &#123;  </span><br><span class="line">        <span class="meta">@Override</span>  </span><br><span class="line">        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doInTransactionWithoutResult</span><span class="params">(TransactionStatus status)</span> &#123;  </span><br><span class="line">            jdbcTemplate.update(insert_sql, <span class="string">&quot;测试&quot;</span>);<span class="comment">//字段id为int型，插入异常自动回滚 </span></span><br><span class="line">        &#125;&#125;  </span><br><span class="line">    );  </span><br><span class="line">    i = jdbcTemplate.queryForInt(count_sql);    </span><br><span class="line">    System.out.println(<span class="string">&quot;表中记录总数：&quot;</span>+i);  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>TransactionTemplate通过调用参数类型为TransactionCallback或TransactionCallbackWithoutResult的execute方法来实现自动事务管理。</p>
+<ul>
+<li><strong>TransactionCallback</strong>：通过实现该接口的“T doInTransaction(TransactionStatus status) ”方法来定义需要事务管理的操作代码；</li>
+<li><strong>TransactionCallbackWithoutResult </strong>：继承TransactionCallback接口，提供“void doInTransactionWithoutResult(TransactionStatus status)”便利接口用于方便那些不需要返回值的事务操作代码。</li>
+</ul>
+<h3 id="声明式事务管理"><a href="#声明式事务管理" class="headerlink" title="声明式事务管理"></a>声明式事务管理</h3><p>Spring 的声明式事务管理在底层是建立在 AOP 的基础之上的。其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。</p>
+<p>声明式事务最大的优点就是不需要通过编程的方式管理事务，这样就不需要在业务逻辑代码中掺杂事务管理的代码，只需在配置文件中做相关的事务规则声明（或通过等价的基于标注的方式），便可以将事务规则应用到业务逻辑中。</p>
+<p>声明式事务实现方式主要有2种，一种为通过使用Spring的&lt;tx:advice&gt;定义事务通知与AOP相关配置实现，另为一种通过@Transactional实现事务管理实现。</p>
+<p><strong>方式一：&lt;tx:advice&gt; + AOP</strong>，XML配置如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--定义DataSource,TransactionManager，同编程式事务管理，这里就省略 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!--   </span></span><br><span class="line"><span class="comment">&lt;tx:advice&gt;定义事务通知，用于指定事务属性，其中“transaction-manager”属性指定事务管理器，并通过&lt;tx:attributes&gt;指定具体需要拦截的方法  </span></span><br><span class="line"><span class="comment">    &lt;tx:method&gt;拦截方法，其中参数有：  </span></span><br><span class="line"><span class="comment">    name:方法名称，将匹配的方法注入事务管理，可用通配符  </span></span><br><span class="line"><span class="comment">    propagation：事务传播行为，  </span></span><br><span class="line"><span class="comment">    isolation：事务隔离级别定义；默认为“DEFAULT”  </span></span><br><span class="line"><span class="comment">    timeout：事务超时时间设置，单位为秒，默认-1，表示事务超时将依赖于底层事务系统；  </span></span><br><span class="line"><span class="comment">    read-only：事务只读设置，默认为false，表示不是只读；  </span></span><br><span class="line"><span class="comment">    rollback-for：需要触发回滚的异常定义，可定义多个，以“，”分割，默认任何RuntimeException都将导致事务回滚，而任何Checked Exception将不导致事务回滚；  </span></span><br><span class="line"><span class="comment">    no-rollback-for：不被触发进行回滚的 Exception(s)；可定义多个，以“，”分割；  </span></span><br><span class="line"><span class="comment"> --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">tx:advice</span> <span class="attr">id</span>=<span class="string">&quot;advice&quot;</span> <span class="attr">transaction-manager</span>=<span class="string">&quot;transactionManager&quot;</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">tx:attributes</span>&gt;</span>  </span><br><span class="line">        <span class="comment">&lt;!-- 拦截save开头的方法，事务传播行为为：REQUIRED --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">&quot;save*&quot;</span> <span class="attr">propagation</span>=<span class="string">&quot;REQUIRED&quot;</span> <span class="attr">isolation</span>=<span class="string">&quot;READ_COMMITTED&quot;</span> <span class="attr">timeout</span>=<span class="string">&quot;&quot;</span> <span class="attr">read-only</span>=<span class="string">&quot;false&quot;</span> <span class="attr">no-rollback-for</span>=<span class="string">&quot;&quot;</span> <span class="attr">rollback-for</span>=<span class="string">&quot;&quot;</span>/&gt;</span>  </span><br><span class="line">        <span class="comment">&lt;!-- 支持,如果有就有,没有就没有 --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">&quot;*&quot;</span> <span class="attr">propagation</span>=<span class="string">&quot;SUPPORTS&quot;</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">tx:attributes</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">tx:advice</span>&gt;</span>  </span><br><span class="line"><span class="comment">&lt;!--AOP配置--&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">aop:config</span>&gt;</span>  </span><br><span class="line">    <span class="comment">&lt;!-- 定义切入点，expression为切人点表达式，如下是指定impl包下的所有方法 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">expression</span>=<span class="string">&quot;execution(* com.kaizhi.*.service.impl.*.*(..))&quot;</span> <span class="attr">id</span>=<span class="string">&quot;pointcut&quot;</span>/&gt;</span>  </span><br><span class="line">    <span class="comment">&lt;!--advice定义 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">aop:advisor</span> <span class="attr">advice-ref</span>=<span class="string">&quot;advice&quot;</span> <span class="attr">pointcut-ref</span>=<span class="string">&quot;pointcut&quot;</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>方式二：@Transactional注解</strong></p>
+<p>(1)开启事务注解</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--定义DataSource,TransactionManager，同编程式事务管理，这里就省略 --&gt;</span>      </span><br><span class="line"><span class="tag">&lt;<span class="name">tx:annotation-driven</span> <span class="attr">transaction-manager</span>=<span class="string">&quot;transactionManager&quot;</span>/&gt;</span><span class="comment">&lt;!--开启事务注解--&gt;</span>  </span><br></pre></td></tr></table></figure>
+
+<p>(2)使用@Transactional注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional(propagation=Propagation.REQUIRED,isolation=Isolation.READ_COMMITTED)</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<ol>
+<li>如果在接口、实现类或方法上都指定了@Transactional 注解，则优先级顺序为<font color="red">方法&gt;实现类&gt;接口</font>；</li>
+<li><font color="red">建议只在实现类或实现类的方法上使用@Transactional，而不要在接口上使用</font>，这是因为如果使用JDK代理机制（基于接口的代理）是没问题；而使用使用CGLIB代理（继承）机制时就会遇到问题，因为其使用基于类的代理而不是接口，这是因为接口上的@Transactional注解是“不能继承的”。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Spring-AOP/" rel="tag"># Spring AOP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/03/30/Hexo%E5%86%99%E6%96%87%E7%AB%A0/" rel="prev" title="Hexo写文章">
+                  <i class="fa fa-angle-left"></i> Hexo写文章
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/04/07/Spring-IoC%E5%9F%BA%E7%A1%80/" rel="next" title="Spring IoC基础">
+                  Spring IoC基础 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Milan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

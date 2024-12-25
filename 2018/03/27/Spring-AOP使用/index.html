@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yoursite.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.21.1","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Spring AOP使用有两种形式，一是通过XML配置，二是通过注解；本文以应用或配置示例介绍AOP XML配置和AOP注解方式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AOP使用">
+<meta property="og:url" content="http://yoursite.com/2018/03/27/Spring-AOP%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Milan">
+<meta property="og:description" content="Spring AOP使用有两种形式，一是通过XML配置，二是通过注解；本文以应用或配置示例介绍AOP XML配置和AOP注解方式。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-27T08:52:38.000Z">
+<meta property="article:modified_time" content="2018-04-06T06:39:56.735Z">
+<meta property="article:author" content="Milan">
+<meta property="article:tag" content="Spring AOP">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://yoursite.com/2018/03/27/Spring-AOP%E4%BD%BF%E7%94%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://yoursite.com/2018/03/27/Spring-AOP%E4%BD%BF%E7%94%A8/","path":"2018/03/27/Spring-AOP使用/","title":"Spring AOP使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Spring AOP使用 | Milan</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Milan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">莫生气，生气长结节</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EXML%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">基于XML配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AspectJ%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">@AspectJ注解方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.1.</span> <span class="nav-text">使用示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%87%E9%9D%A2%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">切面表达式</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Milan</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/27/Spring-AOP%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Milan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Milan">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Spring AOP使用 | Milan">
+      <meta itemprop="description" content="Spring AOP使用有两种形式，一是通过XML配置，二是通过注解；本文以应用或配置示例介绍AOP XML配置和AOP注解方式。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring AOP使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2018-03-27 16:52:38" itemprop="dateCreated datePublished" datetime="2018-03-27T16:52:38+08:00">2018-03-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2018-04-06 14:39:56" itemprop="dateModified" datetime="2018-04-06T14:39:56+08:00">2018-04-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">Spring AOP使用有两种形式，一是通过XML配置，二是通过注解；本文以应用或配置示例介绍AOP XML配置和AOP注解方式。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Spring AOP使用有两种形式，一是通过XML配置，二是通过注解。</p>
+<h1 id="基于XML配置"><a href="#基于XML配置" class="headerlink" title="基于XML配置"></a>基于XML配置</h1><p>AOP配置，有如下三种方式:</p>
+<ul>
+<li><p>在&lt;aop:config&gt;使用&lt;aop:pointcut&gt;声明切点；该切点可以被多个切面关联</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> </span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:aop</span>=<span class="string">&quot;http://www.springframework.org/schema/aop&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/aop</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/aop/spring-aop.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;loggerApsect&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.milan.base.LogAspect&quot;</span> /&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:config</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- 声明切点pointcut，一个切点是可以被多个切面关联的--&gt;</span></span><br><span class="line">		<span class="comment">&lt;!-- expression表示满足expression的方法调用就会触发切面 --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">id</span>=<span class="string">&quot;logPointCut&quot;</span></span></span><br><span class="line"><span class="tag">			<span class="attr">expression</span>=<span class="string">&quot;execution(* com.milan.service.ProductionService.*(..)) &quot;</span> /&gt;</span></span><br><span class="line">			</span><br><span class="line">		<span class="comment">&lt;!-- 声明切面，id代表这个切面的名字，ref就是切面方法所在的类，method指定切面方法的名字 --&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:aspect</span> <span class="attr">id</span>=<span class="string">&quot;logAspect&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;loggerApsect&quot;</span>&gt;</span></span><br><span class="line">			<span class="comment">&lt;!-- 声明advice,其中pointcut-ref 将该切面同对应的切点关联，切点触发就执行指定方法--&gt;</span></span><br><span class="line">			<span class="comment">&lt;!-- advice有5种：before，after，after-returning ，after-throwing，around --&gt;</span></span><br><span class="line">			<span class="comment">&lt;!-- arg-names可以指定method中参数--&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:around</span> <span class="attr">pointcut-ref</span>=<span class="string">&quot;loggerCutpoint&quot;</span> <span class="attr">method</span>=<span class="string">&quot;log&quot;</span> /&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:after</span> <span class="attr">pointcut-ref</span>=<span class="string">&quot;loggerCutpoint&quot;</span> <span class="attr">method</span>=<span class="string">&quot;log&quot;</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">aop:aspect</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>在 &lt;aop:aspect&gt; 中使用 &lt;aop:pointcut&gt;声明切点，该切点只被该切面使用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> </span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:aop</span>=<span class="string">&quot;http://www.springframework.org/schema/aop&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/aop</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/aop/spring-aop.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;loggerApsect&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.milan.base.LogAspect&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:config</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:aspect</span> <span class="attr">id</span>=<span class="string">&quot;logAspect2&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;loggerApsect&quot;</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">id</span>=<span class="string">&quot;logPointCut&quot;</span></span></span><br><span class="line"><span class="tag">				<span class="attr">expression</span>=<span class="string">&quot;execution(* com.milan.service.ProductionService.*(..)) &quot;</span> /&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:after</span> <span class="attr">pointcut-ref</span>=<span class="string">&quot;loggerCutpoint&quot;</span> <span class="attr">method</span>=<span class="string">&quot;log&quot;</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">aop:aspect</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>匿名切入点bean,只能被当前advice使用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> </span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:aop</span>=<span class="string">&quot;http://www.springframework.org/schema/aop&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/beans/spring-beans-4.3.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/aop</span></span></span><br><span class="line"><span class="string"><span class="tag">         http://www.springframework.org/schema/aop/spring-aop.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;loggerApsect&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.milan.base.LogAspect&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">aop:config</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">aop:aspect</span> <span class="attr">id</span>=<span class="string">&quot;logAspect2&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;loggerApsect&quot;</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">aop:after</span> <span class="attr">pointcut</span>=<span class="string">&quot;execution(* com.milan.service.ProductionService.*(..))&quot;</span> <span class="attr">method</span>=<span class="string">&quot;log&quot;</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">aop:aspect</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="AspectJ注解方式"><a href="#AspectJ注解方式" class="headerlink" title="@AspectJ注解方式"></a>@AspectJ注解方式</h1><h2 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h2><p>Spring AOP中使用Aspect注解，要先在Spring配置文件中先配置支持@ApsectJ</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">aop:aspectj-autoproxy</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 日志输出注解</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Milan</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span>  </span><br><span class="line"><span class="meta">@Target(ElementType.METHOD)</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Log &#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">LogType</span>&#123;ALL,PARAM,RESULT&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> LogType <span class="title function_">value</span><span class="params">()</span> <span class="keyword">default</span> LogType.ALL;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 日志切面</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Milan</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LogAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> LoggerFactory.getLogger(LogAspect.class);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 监控<span class="doctag">@Log</span>注解了的方法</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="meta">@Pointcut(&quot;@annotation(com.milan.basic.annotation.Log)&quot;)</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">pointCutMethod</span><span class="params">()</span> &#123;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 定制一个环绕通知,计算执行时间</span></span><br><span class="line"><span class="comment">	 * 注意：1.要返回Object,因为环绕的方法可能有返回值；2.要么处理异常要么抛出异常</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> joinPoint</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@throws</span> Throwable</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="meta">@Around(&quot;pointCutMethod()&quot;)</span></span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">countTime</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">		<span class="type">long</span> <span class="variable">begin</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Date</span>().getTime();</span><br><span class="line">		<span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> joinPoint.proceed();</span><br><span class="line">		<span class="type">long</span> <span class="variable">end</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Date</span>().getTime();</span><br><span class="line">		logger.info(<span class="string">&quot;操作&#123;&#125;:执行时间&#123;&#125;ms&quot;</span>, joinPoint.getTarget().getClass() + <span class="string">&quot;.&quot;</span> + joinPoint.getSignature().getName(),</span><br><span class="line">				end - begin);</span><br><span class="line">		<span class="keyword">return</span> o;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="meta">@AfterReturning(pointcut=&quot;pointCutMethod()&quot;,returning=&quot;returnValue&quot;)</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">log</span><span class="params">(JoinPoint point, Object returnValue)</span> &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> ((MethodSignature)point.getSignature()).getMethod();</span><br><span class="line">	        <span class="type">Log</span> <span class="variable">log</span> <span class="operator">=</span> method.getAnnotation(Log.class);</span><br><span class="line">	        Object[] args = point.getArgs();</span><br><span class="line">	        <span class="type">String</span> <span class="variable">methodName</span> <span class="operator">=</span> point.getSignature().getName();</span><br><span class="line">	        <span class="keyword">if</span> (log.value()== Log.LogType.ALL)&#123;</span><br><span class="line">	        	logger.info(<span class="string">&quot;方法: &quot;</span>+methodName+<span class="string">&quot; ,参数: &quot;</span>+JsonUtil.toJsonString(args)+<span class="string">&quot;\n结果: &quot;</span>+returnValue);</span><br><span class="line">	        &#125;</span><br><span class="line">	        <span class="keyword">if</span> (log.value()== Log.LogType.PARAM) &#123;</span><br><span class="line">	        	logger.info(<span class="string">&quot;方法: &quot;</span>+methodName+<span class="string">&quot; ,参数: &quot;</span>+JsonUtil.toJsonString(args));</span><br><span class="line">			&#125;</span><br><span class="line">	        </span><br><span class="line">	        <span class="keyword">if</span> (log.value()== Log.LogType.RESULT)&#123;</span><br><span class="line">	        	logger.info(<span class="string">&quot;方法: &quot;</span>+methodName+<span class="string">&quot; ,结果: &quot;</span>+returnValue);</span><br><span class="line">	        &#125;</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			logger.error(<span class="string">&quot;日志错误&quot;</span>,e);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注解说明：</p>
+<ul>
+<li>@Aspect 用来表明该类是切面</li>
+<li>@Pointcut 用切面表达式来描述切点</li>
+<li>@Before 标识一个前置增强方法</li>
+<li>@Around 环绕增强，相当于MethodInterceptor</li>
+<li>@After final增强，不管是抛出异常或者正常退出都会执行</li>
+<li>@AfterReturning 后置增强，方法正常退出时执行</li>
+<li>@AfterThrowing 异常抛出增强，异常抛出时执行</li>
+</ul>
+<h2 id="切面表达式"><a href="#切面表达式" class="headerlink" title="切面表达式"></a>切面表达式</h2><p>切面表达式由以下三个部分组成：</p>
+<ul>
+<li>designators 指示器，描述通过何种方式匹配想要的方法或类</li>
+<li>Wildcards 通配符<ul>
+<li>* 匹配任意字符</li>
+<li>+ 匹配指定类及其子类</li>
+<li>.. 匹配任意数的子包或参数</li>
+</ul>
+</li>
+<li>operators 运算符(包括&amp;&amp;,||,!),多个切点函数可以进行逻辑运算</li>
+</ul>
+<p>以下详细说明designators,通常有以下几种匹配方式：</p>
+<ul>
+<li><p>匹配方法 execution(&lt;修饰符模式&gt;?&lt;返回类型模式&gt;&lt;方法名模式&gt;(&lt;参数模式&gt;)&lt;异常模式&gt;?)<br>?表示可选项，即修饰符和异常为可选配置，示例可参考Spring官方文档。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//匹配所有public修饰的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(public * * (..))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配所有add开头的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* add*(..))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配所有UserService的所有方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* com.milan.service.UserService.*(..))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配service包及其子包中以Service结尾的类下中所有方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* com.milan.service..*Service.(..))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配add开头有3个参数且前两个参数为指定类型的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* add*(String,java.util.List,*))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配add开头至少有两个参数，且类型固定的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* add*(String,int,..))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配add(Object)方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* add(Object))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配方法名为add,且参数为任意类的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* add(Object+))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配抛出IllegalAccessException的所有方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* *(..) throws java.lang.IllegalAccessEception)&quot;)</span></span><br></pre></td></tr></table></figure></li>
+<li><p>匹配注解<br>匹配注解的有@annotation(),@within(),@target(),@args()。<br>说明：在Spring Context环境下@within()和@target是没有区别的,非Spring context环境才有RetentionPolicy级别要求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//匹配@Log注解的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;@annotation(com.milan.basic.annotation.Log)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配@Log注解的类下所有方法，注意Log的RetentionPolicy级别为CLASS</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;@within(com.milan.basic.annotation.Log)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配@Log注解的类下所有方法，注意Log的RetentionPolicy级别为RUNTIME</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;@target(com.milan.basic.annotation.Log)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配传入参数类型被@Log标注的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;@args(com.milan.basic.annotation.Log)&quot;)</span></span><br></pre></td></tr></table></figure></li>
+<li><p>匹配包或类，使用within()<br>e.g.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//匹配UserService类的任意方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;within(com.milan.service.UserService)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配service包下的所有方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;within(com.milan.service.*)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配service包及其子包下的所有方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;within(com.milan.service..*)&quot;)</span></span><br></pre></td></tr></table></figure></li>
+<li><p>匹配对象,使用this(),target(),bean()<br>e.g.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//匹配目标对象的Spring AOP代理对象中的方法,不支持通配符</span></span><br><span class="line"><span class="comment">//匹配UserService的AOP代理对象中的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;this(com.milan.service.UserService)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标类按类型匹配target中指定类型</span></span><br><span class="line"><span class="comment">//匹配UserService的子类或实现类中的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;target(com.milan.service.UserService)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//匹配spring容器中bean对象，通过bean的名称来匹配</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;bean(*Service)&quot;)</span></span><br></pre></td></tr></table></figure></li>
+<li><p>匹配参数,使用args()<br>e.g.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//匹配server包中的类且第一个参数为long的方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;args(long,..) &amp;&amp; within(com.milan.service.*)&quot;)</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Spring-AOP/" rel="tag"># Spring AOP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/03/26/aop%E5%9F%BA%E7%A1%80/" rel="prev" title="AOP基础">
+                  <i class="fa fa-angle-left"></i> AOP基础
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2018/03/28/Spring-AOP%E5%AE%9E%E7%8E%B0%E6%9C%BA%E5%88%B6/" rel="next" title="Spring AOP实现机制">
+                  Spring AOP实现机制 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Milan</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
